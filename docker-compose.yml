@@ -1,0 +1,19 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  image-extractor:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - FLICKR_API_KEY=${FLICKR_API_KEY}
+      - IMGUR_CLIENT_ID=${IMGUR_CLIENT_ID}
+      # Add other API keys as needed
+    restart: unless-stopped
+    
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
