@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Image Extractor"
+version = "0.1.0"
+description = "Your app description"
+authors = [{name = "intrnauts", email = "contact@intrnauts.net"}]
+dependencies = [
+    "requests>=2.25.0",
+    "click>=7.0",
+    # your app's dependencies
+]
+
+[project.scripts]
+your-app = "your_app.cli:main"  # if you have a CLI entry point
