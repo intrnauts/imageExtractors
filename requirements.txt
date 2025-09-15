@@ -1,0 +1,25 @@
+# requirements.txt
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+python-multipart
+
+# For web scraping fallback (optional)
+beautifulsoup4
+lxml
+
+# For caching (optional but recommended)
+redis
+
+# For async database operations (if you add persistence)
+asyncpg
+sqlalchemy[asyncio]
+
+# For environment variable management
+python-dotenv
+
+# For testing
+pytest
+pytest-asyncio
+httpx

@@ -1,4 +1,3 @@
-# extractors/flickr.py
 import httpx
 import re
 from typing import Dict, List
@@ -95,7 +94,6 @@ class FlickrExtractor(BaseExtractor):
             
             # Convert to our format
             images = []
-            preferred_size = options.get('size', 'Large')
             
             for size in sizes:
                 images.append({
@@ -119,6 +117,73 @@ class FlickrExtractor(BaseExtractor):
             }
     
     async def _extract_photoset(self, photoset_id: str, options: Dict) -> Dict:
-        # Implementation for photosets/albums
-        # Similar structure but iterate through multiple photos
-        pass
+        async with httpx.AsyncClient() as client:
+            # Get photoset info
+            info_params = {
+                'method': 'flickr.photosets.getInfo',
+                'api_key': self.api_key,
+                'photoset_id': photoset_id,
+                'format': 'json',
+                'nojsoncallback': 1
+            }
+            
+            info_response = await client.get(self.base_url, params=info_params)
+            info_data = info_response.json()
+            
+            # Get photos in the set
+            photos_params = {
+                'method': 'flickr.photosets.getPhotos',
+                'api_key': self.api_key,
+                'photoset_id': photoset_id,
+                'format': 'json',
+                'nojsoncallback': 1
+            }
+            
+            photos_response = await client.get(self.base_url, params=photos_params)
+            photos_data = photos_response.json()
+            
+            if info_data['stat'] != 'ok' or photos_data['stat'] != 'ok':
+                raise ValueError("Failed to fetch photoset data from Flickr")
+            
+            photoset_info = info_data['photoset']
+            photos = photos_data['photoset']['photo']
+            
+            # Get image URLs for each photo (simplified - just get one size per photo)
+            images = []
+            for photo in photos:
+                # Get sizes for this photo
+                sizes_params = {
+                    'method': 'flickr.photos.getSizes',
+                    'api_key': self.api_key,
+                    'photo_id': photo['id'],
+                    'format': 'json',
+                    'nojsoncallback': 1
+                }
+                
+                sizes_response = await client.get(self.base_url, params=sizes_params)
+                sizes_data = sizes_response.json()
+                
+                if sizes_data['stat'] == 'ok':
+                    sizes = sizes_data['sizes']['size']
+                    # Get the largest size available
+                    largest = max(sizes, key=lambda x: int(x.get('width', 0)) * int(x.get('height', 0)))
+                    
+                    images.append({
+                        'url': largest['source'],
+                        'title': photo['title'],
+                        'width': int(largest['width']),
+                        'height': int(largest['height']),
+                        'size_label': largest['label']
+                    })
+            
+            return {
+                'platform': self.platform_name,
+                'type': 'album',
+                'images': images,
+                'metadata': {
+                    'photoset_id': photoset_id,
+                    'title': photoset_info['title']['_content'],
+                    'description': photoset_info.get('description', {}).get('_content', ''),
+                    'photo_count': len(images)
+                }
+            }
