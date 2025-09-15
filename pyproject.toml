@@ -3,15 +3,29 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ImageExtractor"
+name = "image-extractor"
 version = "0.1.0"
-description = "Your app description"
+description = "A client library for extracting images from various platforms"
 authors = [{name = "intrnauts", email = "contact@intrnauts.net"}]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
 dependencies = [
-    "requests>=2.25.0",
-    "click>=7.0",
-    # your app's dependencies
+    "httpx>=0.23.0",
+    "pydantic>=1.8.0",
 ]
 
-[project.scripts]
-your-app = "your_app.cli:main"  # if you have a CLI entry point
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-asyncio>=0.18.0",
+]
